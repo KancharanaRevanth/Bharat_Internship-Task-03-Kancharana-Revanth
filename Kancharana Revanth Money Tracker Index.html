@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Tracker WebApp -By Kancharana Revanth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Money Tracker WebApp -By Kancharana Revanth</h2>
+
+<form id="expenseForm">
+    <label for="category">Category:</label>
+    <select id="category" required>
+        <option value="Food & Beverage">Food & Beverage</option>
+        <option value="Rent">Rent</option>
+        <option value="Transporting">Transporting</option>
+        <option value="Personal Expenses">Personal Expenses</option>
+        <option value="Financial Loans">Financial Loans</option>
+        <option value="Trips">Trips</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Groceries">Groceries</option>
+    </select>
+
+    <label for="amount">Amount Spent:</label>
+    <input type="number" id="amount" required>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date" required>
+
+    <button type="button" onclick="addExpense()">Add Expense</button>
+</form>
+
+<table id="expenseTable">
+    <thead>
+    <tr>
+        <th>Category</th>
+        <th>Amount Spent</th>
+        <th>Date</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Expense data will be added here dynamically -->
+    </tbody>
+</table>
+
+<div>
+    <h3>Total Amount: <span id="totalAmount">0</span></h3>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Load expenses from local storage
+        loadExpenses();
+        updateTotalAmount();
+    });
+
+    function addExpense() {
+        const category = document.getElementById("category").value;
+        const amount = document.getElementById("amount").value;
+        const date = document.getElementById("date").value;
+
+        if (category && amount && date) {
+            const expense = { category, amount, date };
+            saveExpense(expense);
+            loadExpenses();
+            updateTotalAmount();
+            clearForm();
+        }
+    }
+
+    function saveExpense(expense) {
+        let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+        expenses.push(expense);
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+    }
+
+    function loadExpenses() {
+        const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+        const tableBody = document.querySelector("#expenseTable tbody");
+
+        // Clear existing rows
+        tableBody.innerHTML = "";
+
+        // Populate table with expenses
+        expenses.forEach(expense => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${expense.category}</td>
+                <td>${expense.amount}</td>
+                <td>${expense.date}</td>
+                <td><button onclick="deleteExpense(${expenses.indexOf(expense)})">Delete</button></td>
+            `;
+        });
+    }
+
+    function deleteExpense(index) {
+        let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+        expenses.splice(index, 1);
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        loadExpenses();
+        updateTotalAmount();
+    }
+
+    function clearForm() {
+        document.getElementById("category").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("date").value = "";
+    }
+
+    function updateTotalAmount() {
+        const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+        const totalAmount = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+        document.getElementById("totalAmount").innerText = totalAmount.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
